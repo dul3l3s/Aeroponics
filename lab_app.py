@@ -74,6 +74,20 @@ def lab_temp():
 	else:
 		return render_template("no_sensor.html")
 
+@app.route("/sensors")
+def getSensors():
+    humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, 17)
+	i2c = busio.I2C(board.SCL, board.SDA)
+    ads = ADS.ADS1115(i2c)
+    chan = AnalogIn(ads, ADS.P0)
+    phAdj = 21.3295
+    ph = -5.74 * chan.voltage + phAdj
+    
+    if humidity is not None and temperature is not None and ph is not None:
+		return render_template("gui.html",temp=temperature,hum=humidity, ph=ph)
+	else:
+		return render_template("no_sensor.html")
+
 @app.route("/lab_env_db", methods=['GET'])
 def lab_env_db():
         temperatures, humidities, ph, from_date_str, to_date_str = get_records()    
